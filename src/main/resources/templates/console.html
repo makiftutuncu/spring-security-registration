@@ -21,8 +21,8 @@
     
     <div sec:authorize="hasAuthority('READ_PRIVILEGE')">This text is only visible to a user</div>
           
-    <div sec:authorize="hasAuthority('WRITE_PRIVILEGE')"> This text is only visible to an admin</div>
-    
+    <div sec:authorize="hasAuthority('ADMIN_PRIVILEGE')"> This text is only visible to an admin</div>
+
       <a class="btn btn-default" th:href="@{/admin.html}" th:utext="#{label.pages.admin}">admin</a>
       <br/>
       <a class="btn btn-default" th:href="@{/changePassword.html}" th:utext="#{message.changePassword}">change password</a>

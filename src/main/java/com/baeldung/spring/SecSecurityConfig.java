@@ -7,6 +7,8 @@ import com.baeldung.security.google2fa.CustomWebAuthenticationDetailsSource;
 import com.baeldung.security.location.DifferentLocationChecker;
 import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -25,6 +27,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -40,6 +43,12 @@ import java.io.IOException;
 // @ImportResource({ "classpath:webSecurityConfig.xml" })
 @EnableWebSecurity
 public class SecSecurityConfig {
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+
+    private final AccessDeniedHandler accessDeniedHandler = (request, response, accessDeniedException) -> {
+        LOGGER.info("{} attempted to access unauthorized URL {}", request.getUserPrincipal().getName(), request.getRequestURI());
+        response.sendRedirect("/forbidden.html");
+    };
 
     @Autowired
     private UserDetailsService userDetailsService;
@@ -88,6 +97,12 @@ public class SecSecurityConfig {
             .anonymous()
             .antMatchers("/user/updatePassword*")
             .hasAuthority("CHANGE_PASSWORD_PRIVILEGE")
+            .antMatchers("/management*")
+            .hasAuthority("MANAGE_PRIVILEGE")
+            .antMatchers("/console*")
+            .hasAuthority("ADMIN_PRIVILEGE")
+            .and()
+            .authorizeRequests()
             .anyRequest()
             .hasAuthority("READ_PRIVILEGE")
             .and()
@@ -117,7 +132,11 @@ public class SecSecurityConfig {
             .and()
             .rememberMe()
             .rememberMeServices(rememberMeServices())
-            .key("theKey");
+            .key("theKey")
+            .and()
+            .exceptionHandling()
+            .defaultAccessDeniedHandlerFor(accessDeniedHandler, r -> r.getRequestURI().contains("/management"))
+            .defaultAccessDeniedHandlerFor(accessDeniedHandler, r -> r.getRequestURI().contains("/console"));
         return http.build();
     }
 
@@ -157,7 +176,7 @@ public class SecSecurityConfig {
     @Bean
     public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        String hierarchy = "ROLE_ADMIN > ROLE_STAFF \n ROLE_STAFF > ROLE_USER";
+        String hierarchy = "ROLE_ADMIN > ROLE_MANAGER \n ROLE_ADMIN > ROLE_STAFF \n ROLE_MANAGER > ROLE_STAFF \n ROLE_STAFF > ROLE_USER";
         roleHierarchy.setHierarchy(hierarchy);
         return roleHierarchy;
     }

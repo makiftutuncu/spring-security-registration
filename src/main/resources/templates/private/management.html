@@ -2,7 +2,7 @@
 
 <head>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
-<title th:utext="#{label.pages.home.title}"></title>
+<title th:utext="#{label.pages.management.title}"></title>
 </head>
 <body>
 <nav class="navbar navbar-default">
@@ -17,9 +17,9 @@
 </nav>
 
 <div class="container">         
-     <p sec:authorize="!hasAuthority('ADMIN_PRIVILEGE')" th:utext="#{message.unauth}">unauth</p>
+     <p sec:authorize="!hasAuthority('MANAGE_PRIVILEGE')" th:utext="#{message.unauth}">unauth</p>
         
-     <h1 sec:authorize="hasAuthority('ADMIN_PRIVILEGE')" th:utext="#{label.pages.admin.message}">admin</h1>
+     <h1 sec:authorize="hasAuthority('MANAGE_PRIVILEGE')" th:utext="#{label.pages.management.message}">admin</h1>
 </div>
 </body>
 </html>
