@@ -19,7 +19,7 @@
 <div class="container">         
      <p sec:authorize="!hasAuthority('MANAGE_PRIVILEGE')" th:utext="#{message.unauth}">unauth</p>
         
-     <h1 sec:authorize="hasAuthority('MANAGE_PRIVILEGE')" th:utext="#{label.pages.management.message}">admin</h1>
+     <h1 sec:authorize="hasAuthority('MANAGE_PRIVILEGE')" th:utext="#{label.pages.management.message}">management</h1>
 </div>
 </body>
 </html>
