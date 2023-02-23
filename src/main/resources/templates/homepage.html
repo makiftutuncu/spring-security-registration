@@ -16,14 +16,22 @@
 </nav>
 
     <div class="container">
-	    <div sec:authorize="hasAuthority('WRITE_PRIVILEGE')" th:utext="#{label.pages.user.message}">user</div>
+	    <div sec:authorize="hasAuthority('READ_PRIVILEGE')" th:utext="#{label.pages.user.message}">user</div>
 	
-	    <div sec:authorize="hasAuthority('WRITE_PRIVILEGE')" th:utext="#{label.pages.admin.message}"></div>
-	     
+	    <div sec:authorize="hasAuthority('MANAGE_PRIVILEGE')" th:utext="#{label.pages.management.message}"></div>
+
+	    <div sec:authorize="hasAuthority('ADMIN_PRIVILEGE')" th:utext="#{label.pages.admin.message}"></div>
+
 	    <p th:if="${param.user} != null" th:text="${param.user[0]}">user</p>
-	     
+
+        <div sec:authorize="hasAuthority('MANAGE_PRIVILEGE')">
+	    <a class="btn btn-default" th:href="@{/management}" th:utext="#{label.pages.management}">management</a>
+		<br /> <br />
+        </div>
+	    <div sec:authorize="hasAuthority('ADMIN_PRIVILEGE')">
 	    <a class="btn btn-default" th:href="@{/admin.html}" th:utext="#{label.pages.admin}">admin</a>
 		<br /> <br />
+        </div>
 	    <a th:href="@{/loggedUsers}" th:utext="#{label.pages.users.message}">View logged in users</a>
 		<br />	    
 	    <a th:href="@{/loggedUsersFromSessionRegistry}" th:utext="#{label.pages.users.sessionregistry.message}">View logged in users</a>

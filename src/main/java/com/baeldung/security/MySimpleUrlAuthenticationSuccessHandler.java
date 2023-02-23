@@ -18,7 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component("myAuthenticationSuccessHandler")
 public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
@@ -80,30 +81,21 @@ public class MySimpleUrlAuthenticationSuccessHandler implements AuthenticationSu
     }
 
     protected String determineTargetUrl(final Authentication authentication) {
-        boolean isUser = false;
-        boolean isAdmin = false;
-        final Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        for (final GrantedAuthority grantedAuthority : authorities) {
-            if (grantedAuthority.getAuthority().equals("READ_PRIVILEGE")) {
-                isUser = true;
-            } else if (grantedAuthority.getAuthority().equals("WRITE_PRIVILEGE")) {
-                isAdmin = true;
-                isUser = false;
-                break;
-            }
-        }
-        if (isUser) {
-        	 String username;
-             if (authentication.getPrincipal() instanceof User) {
-             	username = ((User)authentication.getPrincipal()).getEmail();
-             }
-             else {
-             	username = authentication.getName();
-             }
+        final Set<String> authorities = authentication
+                .getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+
+        if (authorities.contains("ADMIN_PRIVILEGE")) {
+            return "/console";
+        } else if (authorities.contains("READ_PRIVILEGE")) {
+            String username =
+                    (authentication.getPrincipal() instanceof User)
+                            ? ((User) authentication.getPrincipal()).getEmail()
+                            : authentication.getName();
 
             return "/homepage.html?user="+username;
-        } else if (isAdmin) {
-            return "/console";
         } else {
             throw new IllegalStateException();
         }
